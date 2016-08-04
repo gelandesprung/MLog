@@ -109,7 +109,7 @@ public class MLog {
                                     }
                                 }
                                 if (mFileWrite == null) {
-                                    File dir = new File(MLogSettings.getSdcard() + File.separator + MLogSettings
+                                    File dir = new File(MLogSettings.getInstance().getSdcard() + File.separator + MLogSettings
                                             .getInstance().getLogPath());
                                     if (!dir.exists()) {
                                         dir.mkdirs();

@@ -8,7 +8,7 @@ import android.widget.Button;
 import yanchao.shahe.bj.mlog.MLog;
 
 public class MainActivity extends AppCompatActivity {
-    MLog mMLog = MLog.getMLog(MainActivity.class.getSimpleName());
+    MLog mMLog = MLog.getMLog(MainActivity.class.getName());
     private Button xml, json;
     String xmlstr =
             "<books><book><author>Jack Herrington</author><title>PHP Hacks</title><publisher>O'Reilly</publisher></book><book><author>Jack Herrington</author><title>Podcasting Hacks</title><publisher>O'Reilly</publisher></book><book><author>XML格式化</author><title>脚本之家在线工具</title><publisher>tools.jb51.net</publisher></book></books>";

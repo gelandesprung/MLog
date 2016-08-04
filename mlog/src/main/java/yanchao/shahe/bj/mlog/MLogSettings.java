@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
  * ${TAGS}
  */
 public class MLogSettings {
-    private static final String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
+    private String mSdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
     /**
      * 日志模块工作的模式，有四种：
      * 只输出到终端，只输出到文件，既输出到终端又输出到文件，关闭日志模式
@@ -56,8 +56,13 @@ public class MLogSettings {
         return instance;
     }
 
-    public static String getSdcard() {
-        return sdcard;
+    public String getSdcard() {
+        return mSdcard;
+    }
+
+    public MLogSettings mSdcard(String val) {
+        mSdcard = val;
+        return this;
     }
 
     public WorkMode getWorkMode() {
@@ -105,7 +110,8 @@ public class MLogSettings {
         mLogPath = val;
         return this;
     }
-    public MLogSettings mLogLevel(LogLevel val){
+
+    public MLogSettings mLogLevel(LogLevel val) {
         mLogLevel = val;
         return this;
     }
@@ -113,11 +119,13 @@ public class MLogSettings {
     public LogLevel getLogLevel() {
         return mLogLevel;
     }
-    public MLogSettings mJsonLog(boolean val){
+
+    public MLogSettings mJsonLog(boolean val) {
         mJsonLog = val;
         return this;
     }
-    public MLogSettings mXmlLog(boolean val){
+
+    public MLogSettings mXmlLog(boolean val) {
         mXmlLog = val;
         return this;
     }
