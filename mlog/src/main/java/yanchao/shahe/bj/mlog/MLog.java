@@ -2,21 +2,14 @@ package yanchao.shahe.bj.mlog;
 
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -59,90 +52,13 @@ public class MLog {
      */
     private static final int JSON_INDENT = 4;
     private String tag;
-    private static FileWriter mFileWrite;
-    /**
-     * 当前打开的日志文件名
-     */
-    private static String fileName = "";
-    /**
-     * 缓存队列的容量
-     */
-    private static final int CAPACITY = 2000;
-    /**
-     * 缓存需要处理的日志
-     */
-    private static BlockingQueue<String> msgQueue = new ArrayBlockingQueue<>(CAPACITY);
+
+
     /**
      * 处理xml格式化
      */
     private static ExecutorService ioThread = Executors.newFixedThreadPool(10);
 
-
-    boolean print_to_console = MLogSettings.getInstance().getWorkMode() == WorkMode.CONSOLE ||
-            MLogSettings.getInstance().getWorkMode() == WorkMode.ALL;
-    boolean write_to_file = MLogSettings.getInstance().getWorkMode() == WorkMode.ALL || MLogSettings
-            .getInstance().getWorkMode() == WorkMode.FILE;
-    /**
-     * 是否打开日志功能
-     */
-    boolean active = MLogSettings.getInstance().getWorkMode() != WorkMode.NONE;
-
-    {
-        if (active)
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    while (true) {
-                        try {
-                            String msg = msgQueue.take();
-                            if (print_to_console) {
-                                Log.d(tag, msg);
-                            }
-                            if (write_to_file) {
-                                if (!fileName.equals(MLogSettings.getInstance().getFileNameFormat().format(new Date()
-                                ))) {
-                                    fileName = MLogSettings.getInstance().getFileNameFormat().format(new Date());
-                                    if (mFileWrite != null) {
-                                        mFileWrite.close();
-                                        mFileWrite = null;
-                                    }
-                                }
-                                if (mFileWrite == null) {
-                                    File dir = new File(MLogSettings.getInstance().getSdcard() + File.separator + MLogSettings
-                                            .getInstance().getLogPath());
-                                    if (!dir.exists()) {
-                                        dir.mkdirs();
-                                    }
-                                    File log = new File(dir.getAbsolutePath() + File.separator + MLogSettings
-                                            .getInstance()
-                                            .getLogPrefix() + fileName + ".log");
-                                    if (!log.exists()) {
-                                        log.createNewFile();
-                                        // FIXME: 8/4/16 删除旧文件
-                                    }
-                                    mFileWrite = new FileWriter(log, true);
-                                }
-                                mFileWrite.write(msg);
-                                if (msgQueue.remainingCapacity() < CAPACITY) {
-                                    ArrayList<String> cache = new ArrayList<>();
-                                    msgQueue.drainTo(cache);
-                                    for (String log : cache) {
-                                        mFileWrite.write(log);
-                                    }
-                                }
-                                mFileWrite.flush();
-                            }
-
-                        } catch (InterruptedException v_e) {
-                            v_e.printStackTrace();
-                        } catch (IOException v_e) {
-                            v_e.printStackTrace();
-                        }
-                    }
-                }
-            }).start();
-    }
 
     private MLog(String v_tag) {
         tag = v_tag;
@@ -153,72 +69,152 @@ public class MLog {
     }
 
     public void v(String msg) {
-        print(LogLevel.VERBOSE, headTag().append(msg).append('\n').toString());
+        print(LogLevel.VERBOSE, new MessageWrapper(tag, headTag().append(msg).append('\n').toString()));
+    }
+
+    public static void v(String tag, String msg) {
+        _print(LogLevel.VERBOSE, new MessageWrapper(tag, headTag(tag, method()).append(msg).append('\n').toString()));
     }
 
     public void v(String format, Object... args) {
-        print(LogLevel.VERBOSE, headTag().append(String.format(format, args)).append('\n').toString());
+        print(LogLevel.VERBOSE, new MessageWrapper(tag, headTag().append(String.format(format, args)).append('\n')
+                .toString()));
+    }
+
+    public static void v(String tag, String format, Object... args) {
+        _print(LogLevel.VERBOSE, new MessageWrapper(tag, headTag(tag, method()).append(String.format(format, args))
+                .append('\n').toString()));
     }
 
     public void d(String msg) {
-        print(LogLevel.DEBUG, headTag().append(msg).append('\n').toString());
+        print(LogLevel.DEBUG, new MessageWrapper(tag, headTag().append(msg).append('\n').toString()));
+    }
+
+    public static void d(String tag, String msg) {
+        _print(LogLevel.DEBUG, new MessageWrapper(tag, headTag(tag, method()).append(msg).append('\n').toString()));
     }
 
     public void d(String format, Object... args) {
-        print(LogLevel.DEBUG, headTag().append(String.format(format, args)).append('\n').toString());
+        print(LogLevel.DEBUG, new MessageWrapper(tag, headTag().append(String.format(format, args)).append('\n')
+                .toString()));
+    }
+
+    public static void d(String tag, String format, Object... args) {
+        _print(LogLevel.DEBUG, new MessageWrapper(tag, headTag(tag, method()).append(String.format(format, args))
+                .append('\n').toString()));
     }
 
     public void i(String msg) {
-        print(LogLevel.INFO, headTag().append(msg).append('\n').toString());
+        print(LogLevel.INFO, new MessageWrapper(tag, headTag().append(msg).append('\n').toString()));
+    }
+
+    public static void i(String tag, String msg) {
+        _print(LogLevel.INFO, new MessageWrapper(tag, headTag(tag, method()).append(msg).append('\n').toString()));
     }
 
     public void i(String format, Object... args) {
-        print(LogLevel.INFO, headTag().append(String.format(format, args)).append('\n').toString());
+        print(LogLevel.INFO, new MessageWrapper(tag, headTag().append(String.format(format, args)).append('\n')
+                .toString()));
+    }
+
+    public static void i(String tag, String format, Object... args) {
+        _print(LogLevel.INFO, new MessageWrapper(tag, headTag(tag, method()).append(String.format(format, args))
+                .append('\n').toString()));
     }
 
     public void w(String msg) {
-        print(LogLevel.WARN, headTag().append(msg).append('\n').toString());
+        print(LogLevel.WARN, new MessageWrapper(tag, headTag().append(msg).append('\n').toString()));
+    }
+
+    public static void w(String tag, String msg) {
+        _print(LogLevel.WARN, new MessageWrapper(tag, headTag(tag, method()).append(msg).append('\n').toString()));
     }
 
     public void w(String format, Object... args) {
-        print(LogLevel.WARN, headTag().append(String.format(format, args)).append('\n').toString());
+        print(LogLevel.WARN, new MessageWrapper(tag, headTag().append(String.format(format, args)).append('\n')
+                .toString()));
+    }
+
+    public static void w(String tag, String format, Object... args) {
+        _print(LogLevel.WARN, new MessageWrapper(tag, headTag(tag, method()).append(String.format(format, args))
+                .append('\n').toString()));
     }
 
     public void e(String msg) {
-        print(LogLevel.ERROR, headTag().append(msg).append('\n').toString());
+        print(LogLevel.ERROR, new MessageWrapper(tag, headTag().append(msg).append('\n').toString()));
+    }
+
+    public static void e(String tag, String msg) {
+        _print(LogLevel.ERROR, new MessageWrapper(tag, headTag(tag, method()).append(msg).append('\n').toString()));
     }
 
     public void e(String format, Object... args) {
-        print(LogLevel.ERROR, headTag().append(String.format(format, args)).append('\n').toString());
+        print(LogLevel.ERROR, new MessageWrapper(tag, headTag().append(String.format(format, args)).append('\n')
+                .toString()));
+    }
+
+    public static void e(String tag, String format, Object... args) {
+        _print(LogLevel.ERROR, new MessageWrapper(tag, headTag(tag, method()).append(String.format(format, args))
+                .append('\n').toString()));
     }
 
     public void a(String msg) {
-        print(LogLevel.ASSERT, headTag().append(msg).append('\n').toString());
+        print(LogLevel.ASSERT, new MessageWrapper(tag, headTag().append(msg).append('\n').toString()));
+    }
+
+    public static void a(String tag, String msg) {
+        _print(LogLevel.ASSERT, new MessageWrapper(tag, headTag(tag, method()).append(msg).append('\n').toString()));
     }
 
     public void a(String format, Object... args) {
-        print(LogLevel.ASSERT, headTag().append(String.format(format, args)).append('\n').toString());
+        print(LogLevel.ASSERT, new MessageWrapper(tag, headTag().append(String.format(format, args)).append('\n')
+                .toString()));
+    }
+
+    public static void a(String tag, String format, Object... args) {
+        _print(LogLevel.ASSERT, new MessageWrapper(tag, headTag(tag, method()).append(String.format(format, args))
+                .append('\n').toString()));
     }
 
     public void xml(final String msg) {
         ioThread.execute(new Runnable() {
             @Override
             public void run() {
-                print(LogLevel.XML, headTag().append(formatXML(msg)).append('\n').toString());
+                print(LogLevel.XML, new MessageWrapper(tag, headTag().append(formatXML(msg)).append('\n').toString()));
             }
         });
     }
 
-    public void json(String msg) {
-        print(LogLevel.JSON, headTag().append(formatJson(msg)).append('\n').toString());
+    public static void xml(final String tag, final String msg) {
+        final String method = method();
+        ioThread.execute(new Runnable() {
+            @Override
+            public void run() {
+                _print(LogLevel.XML, new MessageWrapper(tag, headTag(tag, method).append(formatXML(msg)).append
+                        ('\n').toString()));
+                }
+        });
     }
 
-    private void print(LogLevel level, String v_s) {
-        if (active
+    public void json(String msg) {
+        print(LogLevel.JSON, new MessageWrapper(tag, headTag().append(formatJson(msg)).append('\n').toString()));
+    }
+
+    public static void json(String tag, String msg) {
+        _print(LogLevel.JSON, new MessageWrapper(tag, headTag(tag, method()).append(formatJson(msg)).append('\n')
+                .toString()));
+    }
+
+    private void print(LogLevel level, MessageWrapper v_s) {
+        _print(level, v_s);
+    }
+
+    private static void _print(LogLevel level, MessageWrapper v_s) {
+        if (MLogSettings.getInstance().getWorkMode() != WorkMode.NONE
                 && (level.getLevel() >= MLogSettings.getInstance().getLogLevel().getLevel()
                 || (MLogSettings.getInstance().isJsonLog() && level == LogLevel.JSON)
                 || (MLogSettings.getInstance().isXmlLog() && level == LogLevel.XML))) {
-            msgQueue.offer(v_s);
+            MLogSettings.getInstance().getMsgQueue().offer(v_s);
         }
     }
 
@@ -271,10 +267,13 @@ public class MLog {
     }
 
     private StringBuilder headTag() {
-        StackTraceElement caller = Thread.currentThread().getStackTrace()[4];
+        return headTag(tag, method());
+    }
+
+    private static StringBuilder headTag(String v_tag, String method_name) {
         StringBuilder builder = new StringBuilder();
         builder.append("## ").append(MLogSettings.getInstance().getDateFormat().format(new Date())).append('\n');
-        builder.append('>').append(tag).append(": ").append(caller.getMethodName()).append("\n\n");
+        builder.append('>').append(v_tag).append(": ").append(method_name).append("\n\n");
         return builder;
     }
 }

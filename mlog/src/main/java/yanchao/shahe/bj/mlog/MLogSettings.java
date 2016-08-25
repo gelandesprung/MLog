@@ -1,8 +1,17 @@
 package yanchao.shahe.bj.mlog;
 
+import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * MLog的输出配置管理类，单例模式
@@ -12,7 +21,7 @@ import java.text.SimpleDateFormat;
  * ${TAGS}
  */
 public class MLogSettings {
-    private String mSdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
+    private static String mSdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
     /**
      * 日志模块工作的模式，有四种：
      * 只输出到终端，只输出到文件，既输出到终端又输出到文件，关闭日志模式
@@ -46,7 +55,22 @@ public class MLogSettings {
      * 是否输出xml日志
      */
     private boolean mXmlLog = false;
+    /**
+     * 当前打开的日志文件名
+     */
+    private static String fileName = "";
+    /**
+     * 缓存队列的容量
+     */
+    private static final int CAPACITY = 2000;
+    /**
+     * 缓存需要处理的日志
+     */
+    private static BlockingQueue<MessageWrapper> msgQueue = new ArrayBlockingQueue<>(CAPACITY);
+    private static FileWriter mFileWrite;
 
+    boolean print_to_console = getWorkMode() == WorkMode.CONSOLE || getWorkMode() == WorkMode.ALL;
+    boolean write_to_file = getWorkMode() == WorkMode.ALL || getWorkMode() == WorkMode.FILE;
     private static MLogSettings instance = new MLogSettings();
 
     private MLogSettings() {
@@ -60,9 +84,67 @@ public class MLogSettings {
         return mSdcard;
     }
 
-    public MLogSettings mSdcard(String val) {
-        mSdcard = val;
-        return this;
+    public void init(Context v_context) {
+        mSdcard = v_context.getExternalCacheDir().getAbsolutePath();
+        if (MLogSettings.getInstance().getWorkMode() != WorkMode.NONE)
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+                    while (true) {
+                        try {
+                            MessageWrapper msg = msgQueue.take();
+                            if (print_to_console) {
+                                Log.d(msg.getTag(), msg.getMsg());
+                            }
+                            if (write_to_file) {
+                                if (!fileName.equals(MLogSettings.getInstance().getFileNameFormat().format(new Date()
+                                ))) {
+                                    fileName = MLogSettings.getInstance().getFileNameFormat().format(new Date());
+                                    if (mFileWrite != null) {
+                                        mFileWrite.close();
+                                        mFileWrite = null;
+                                    }
+                                }
+                                if (mFileWrite == null) {
+                                    File dir = new File(MLogSettings.getInstance().getSdcard() + File.separator +
+                                            MLogSettings
+                                            .getInstance().getLogPath());
+                                    if (!dir.exists()) {
+                                        dir.mkdirs();
+                                    }
+                                    File log = new File(dir.getAbsolutePath() + File.separator + MLogSettings
+                                            .getInstance()
+                                            .getLogPrefix() + fileName + ".log");
+                                    if (!log.exists()) {
+                                        log.createNewFile();
+                                        // FIXME: 8/4/16 删除旧文件
+                                    }
+                                    mFileWrite = new FileWriter(log, true);
+                                }
+                                mFileWrite.write(msg.getMsg());
+                                if (msgQueue.remainingCapacity() < CAPACITY) {
+                                    ArrayList<MessageWrapper> cache = new ArrayList<>();
+                                    msgQueue.drainTo(cache);
+                                    for (MessageWrapper log : cache) {
+                                        mFileWrite.write(log.getMsg());
+                                    }
+                                }
+                                mFileWrite.flush();
+                            }
+
+                        } catch (InterruptedException v_e) {
+                            v_e.printStackTrace();
+                        } catch (IOException v_e) {
+                            v_e.printStackTrace();
+                        }
+                    }
+                }
+            }).start();
+    }
+
+    public static BlockingQueue<MessageWrapper> getMsgQueue() {
+        return msgQueue;
     }
 
     public WorkMode getWorkMode() {

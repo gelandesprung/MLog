@@ -19,7 +19,7 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        MLogSettings.getInstance().mSdcard(getExternalCacheDir().getAbsolutePath()).mWorkMode(WorkMode.ALL).mLogLevel(LogLevel.WARN).mJsonLog(true).mXmlLog(true)
-                .mLogPath("ab").mLogPrefix("@@").fileNameFormat(new SimpleDateFormat("yyyy-MM-dd-HH"));
+        MLogSettings.getInstance().mWorkMode(WorkMode.ALL).mLogLevel(LogLevel.WARN).mJsonLog(true).mXmlLog(true)
+                .mLogPath("ab").mLogPrefix("@@").fileNameFormat(new SimpleDateFormat("yyyy-MM-dd-HH")).init(this);
     }
 }
