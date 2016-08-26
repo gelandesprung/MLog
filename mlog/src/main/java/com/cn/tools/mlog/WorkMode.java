@@ -8,5 +8,5 @@ package com.cn.tools.mlog;
  * @date： 8/4/16-9:56 AM
  */
 public enum WorkMode {
-    CONSOLE, FILE, ALL, NONE;
+    CONSOLE, FILE, ALL, NONE, mode, workMode;
 }

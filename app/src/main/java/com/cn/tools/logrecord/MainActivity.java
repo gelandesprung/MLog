@@ -9,7 +9,7 @@ import com.cn.tools.mlog.MLog;
 import com.cn.tools.mlog.MLogSettings;
 
 public class MainActivity extends AppCompatActivity {
-//    MLog mMLog = MLog.getMLog(MainActivity.class.getName());
+    //    MLog mMLog = MLog.getMLog(MainActivity.class.getName());
     private Button xml, json;
     String xmlstr =
             "<books><book><author>Jack Herrington</author><title>PHP Hacks</title><publisher>O'Reilly</publisher></book><book><author>Jack Herrington</author><title>Podcasting Hacks</title><publisher>O'Reilly</publisher></book><book><author>XML格式化</author><title>脚本之家在线工具</title><publisher>tools.jb51.net</publisher></book></books>";
@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         xml.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v_view) {
-                MLog.xml("xml",xmlstr);
+                MLog.xml("xml", xmlstr);
             }
         });
         json.setOnClickListener(new View.OnClickListener() {
@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
                 MLogSettings.getInstance().cleanCache();
             }
         });
-        MLog.e("e","error");
-        MLog.d("d","ok");
+        MLog.e("e", "error");
+        MLog.d("d", "ok");
     }
 }

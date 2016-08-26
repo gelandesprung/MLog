@@ -69,152 +69,135 @@ public class MLog {
     }
 
     public void v(String msg) {
-        print(LogLevel.VERBOSE, new MessageWrapper(tag, headTag().append(msg).append('\n').toString()));
+        print(LogLevel.VERBOSE, msg);
     }
 
     public static void v(String tag, String msg) {
-        _print(LogLevel.VERBOSE, new MessageWrapper(tag, headTag(tag, method()).append(msg).append('\n').toString()));
+        _print(LogLevel.VERBOSE, tag, msg);
     }
 
     public void v(String format, Object... args) {
-        print(LogLevel.VERBOSE, new MessageWrapper(tag, headTag().append(String.format(format, args)).append('\n')
-                .toString()));
+        print(LogLevel.VERBOSE, String.format(format, args));
     }
 
     public static void v(String tag, String format, Object... args) {
-        _print(LogLevel.VERBOSE, new MessageWrapper(tag, headTag(tag, method()).append(String.format(format, args))
-                .append('\n').toString()));
+        _print(LogLevel.VERBOSE, tag, String.format(format, args));
     }
 
     public void d(String msg) {
-        print(LogLevel.DEBUG, new MessageWrapper(tag, headTag().append(msg).append('\n').toString()));
+        print(LogLevel.DEBUG, msg);
     }
 
     public static void d(String tag, String msg) {
-        _print(LogLevel.DEBUG, new MessageWrapper(tag, headTag(tag, method()).append(msg).append('\n').toString()));
+        _print(LogLevel.DEBUG, tag, msg);
     }
 
     public void d(String format, Object... args) {
-        print(LogLevel.DEBUG, new MessageWrapper(tag, headTag().append(String.format(format, args)).append('\n')
-                .toString()));
+        print(LogLevel.DEBUG, String.format(format, args));
     }
 
     public static void d(String tag, String format, Object... args) {
-        _print(LogLevel.DEBUG, new MessageWrapper(tag, headTag(tag, method()).append(String.format(format, args))
-                .append('\n').toString()));
+        _print(LogLevel.DEBUG, tag, String.format(format, args));
     }
 
     public void i(String msg) {
-        print(LogLevel.INFO, new MessageWrapper(tag, headTag().append(msg).append('\n').toString()));
+        print(LogLevel.INFO, msg);
     }
 
     public static void i(String tag, String msg) {
-        _print(LogLevel.INFO, new MessageWrapper(tag, headTag(tag, method()).append(msg).append('\n').toString()));
+        _print(LogLevel.INFO, tag, msg);
     }
 
     public void i(String format, Object... args) {
-        print(LogLevel.INFO, new MessageWrapper(tag, headTag().append(String.format(format, args)).append('\n')
-                .toString()));
+        print(LogLevel.INFO, String.format(format, args));
     }
 
     public static void i(String tag, String format, Object... args) {
-        _print(LogLevel.INFO, new MessageWrapper(tag, headTag(tag, method()).append(String.format(format, args))
-                .append('\n').toString()));
+        _print(LogLevel.INFO, tag, String.format(format, args));
     }
 
     public void w(String msg) {
-        print(LogLevel.WARN, new MessageWrapper(tag, headTag().append(msg).append('\n').toString()));
+        print(LogLevel.WARN, msg);
     }
 
     public static void w(String tag, String msg) {
-        _print(LogLevel.WARN, new MessageWrapper(tag, headTag(tag, method()).append(msg).append('\n').toString()));
+        _print(LogLevel.WARN, tag, msg);
     }
 
     public void w(String format, Object... args) {
-        print(LogLevel.WARN, new MessageWrapper(tag, headTag().append(String.format(format, args)).append('\n')
-                .toString()));
+        print(LogLevel.WARN, String.format(format, args));
     }
 
     public static void w(String tag, String format, Object... args) {
-        _print(LogLevel.WARN, new MessageWrapper(tag, headTag(tag, method()).append(String.format(format, args))
-                .append('\n').toString()));
+        _print(LogLevel.WARN, tag, String.format(format, args));
     }
 
     public void e(String msg) {
-        print(LogLevel.ERROR, new MessageWrapper(tag, headTag().append(msg).append('\n').toString()));
+        print(LogLevel.ERROR, msg);
     }
 
     public static void e(String tag, String msg) {
-        _print(LogLevel.ERROR, new MessageWrapper(tag, headTag(tag, method()).append(msg).append('\n').toString()));
+        _print(LogLevel.ERROR, tag, msg);
     }
 
     public void e(String format, Object... args) {
-        print(LogLevel.ERROR, new MessageWrapper(tag, headTag().append(String.format(format, args)).append('\n')
-                .toString()));
+        print(LogLevel.ERROR, String.format(format, args));
     }
 
     public static void e(String tag, String format, Object... args) {
-        _print(LogLevel.ERROR, new MessageWrapper(tag, headTag(tag, method()).append(String.format(format, args))
-                .append('\n').toString()));
+        _print(LogLevel.ERROR, tag, String.format(format, args));
     }
 
     public void a(String msg) {
-        print(LogLevel.ASSERT, new MessageWrapper(tag, headTag().append(msg).append('\n').toString()));
+        print(LogLevel.ASSERT, msg);
     }
 
     public static void a(String tag, String msg) {
-        _print(LogLevel.ASSERT, new MessageWrapper(tag, headTag(tag, method()).append(msg).append('\n').toString()));
+        _print(LogLevel.ASSERT, tag, msg);
     }
 
     public void a(String format, Object... args) {
-        print(LogLevel.ASSERT, new MessageWrapper(tag, headTag().append(String.format(format, args)).append('\n')
-                .toString()));
+        print(LogLevel.ASSERT, String.format(format, args));
     }
 
     public static void a(String tag, String format, Object... args) {
-        _print(LogLevel.ASSERT, new MessageWrapper(tag, headTag(tag, method()).append(String.format(format, args))
-                .append('\n').toString()));
+        _print(LogLevel.ASSERT, tag, String.format(format, args));
     }
 
     public void xml(final String msg) {
-        ioThread.execute(new Runnable() {
-            @Override
-            public void run() {
-                print(LogLevel.XML, new MessageWrapper(tag, headTag().append(formatXML(msg)).append('\n').toString()));
-            }
-        });
+        xml(tag, msg);
     }
 
     public static void xml(final String tag, final String msg) {
         final String method = method();
-        ioThread.execute(new Runnable() {
-            @Override
-            public void run() {
-                _print(LogLevel.XML, new MessageWrapper(tag, headTag(tag, method).append(formatXML(msg)).append
-                        ('\n').toString()));
-                }
-        });
+//        ioThread.execute(new Runnable() {
+//            @Override
+//            public void run() {
+                _print(LogLevel.XML, tag, msg);
+//            }
+//        });
     }
 
     public void json(String msg) {
-        print(LogLevel.JSON, new MessageWrapper(tag, headTag().append(formatJson(msg)).append('\n').toString()));
+        json(tag,msg);
     }
 
     public static void json(String tag, String msg) {
-        _print(LogLevel.JSON, new MessageWrapper(tag, headTag(tag, method()).append(formatJson(msg)).append('\n')
-                .toString()));
+        _print(LogLevel.JSON,tag, msg);
     }
 
-    private void print(LogLevel level, MessageWrapper v_s) {
-        _print(level, v_s);
+    private void print(LogLevel level, String msg) {
+        _print(level, tag, msg);
     }
 
-    private static void _print(LogLevel level, MessageWrapper v_s) {
+    private static void _print(LogLevel level, String tag, String msg) {
         if (MLogSettings.getInstance().getWorkMode() != WorkMode.NONE
                 && (level.getLevel() >= MLogSettings.getInstance().getLogLevel().getLevel()
                 || (MLogSettings.getInstance().isJsonLog() && level == LogLevel.JSON)
                 || (MLogSettings.getInstance().isXmlLog() && level == LogLevel.XML))) {
-            MLogSettings.getInstance().getMsgQueue().offer(v_s);
+            MessageWrapper msgWrapper = new MessageWrapper(tag,
+                    MLogSettings.getInstance().formate(level,tag, method(), msg));
+            MLogSettings.getInstance().getMsgQueue().offer(msgWrapper);
         }
     }
 
@@ -233,7 +216,7 @@ public class MLog {
         } catch (JSONException e) {
             json = message;
         }
-        return "```\n" + json + "\n```";
+        return json;
     }
 
     /**
@@ -258,16 +241,13 @@ public class MLog {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "```\n" + output + "\n```";
+        return output;
     }
 
     private static String method() {
-        StackTraceElement caller = Thread.currentThread().getStackTrace()[4];
-        return caller.getMethodName();
-    }
 
-    private StringBuilder headTag() {
-        return headTag(tag, method());
+        StackTraceElement caller = Thread.currentThread().getStackTrace()[5];
+        return caller.getMethodName();
     }
 
     private static StringBuilder headTag(String v_tag, String method_name) {

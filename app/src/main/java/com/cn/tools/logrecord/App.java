@@ -7,6 +7,9 @@ import java.text.SimpleDateFormat;
 import com.cn.tools.mlog.LogLevel;
 import com.cn.tools.mlog.MLogSettings;
 import com.cn.tools.mlog.WorkMode;
+import com.cn.tools.mlog.formatter.DefaultLogFormatter;
+import com.cn.tools.mlog.formatter.LogFormatter;
+import com.cn.tools.mlog.formatter.MarkdownFormatter;
 
 /**
  * ${TODO} What the class does
@@ -20,6 +23,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         MLogSettings.getInstance().workMode(WorkMode.ALL).logLevel(LogLevel.WARN).jsonLog(true).xmlLog(true)
-                .logPath("ab").logPrefix("@@").fileNameFormat(new SimpleDateFormat("yyyy-MM-dd-HH-mm")).init(this);
+                .logFormatter(new DefaultLogFormatter())
+                .logPath("ab").fileNamePrefix("@@").fileNameSuffix("txt").fileNameFormat(new SimpleDateFormat("yyyy-MM-dd-HH-mm")).init(this);
     }
 }

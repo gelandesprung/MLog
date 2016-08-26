@@ -3,6 +3,9 @@ package com.cn.tools.mlog;
 import android.content.Context;
 import android.util.Log;
 
+import com.cn.tools.mlog.formatter.DefaultLogFormatter;
+import com.cn.tools.mlog.formatter.LogFormatter;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -58,7 +61,7 @@ public class MLogSettings {
      * 当前打开的日志文件名
      */
     private static String fileName = "";
-    private String mSuffix = "log";
+    private String mSuffix = ".log";
     /**
      * 缓存队列的容量
      */
@@ -68,6 +71,7 @@ public class MLogSettings {
      */
     private static BlockingQueue<MessageWrapper> msgQueue = new ArrayBlockingQueue<>(CAPACITY);
     private static FileWriter mFileWrite;
+    private static LogFormatter s_logFormatter;
 
     boolean print_to_console = getWorkMode() == WorkMode.CONSOLE || getWorkMode() == WorkMode.ALL;
     boolean write_to_file = getWorkMode() == WorkMode.ALL || getWorkMode() == WorkMode.FILE;
@@ -86,7 +90,10 @@ public class MLogSettings {
 
     public void init(Context v_context) {
         mSdcard = v_context.getExternalCacheDir().getAbsolutePath();
-        if (MLogSettings.getInstance().getWorkMode() != WorkMode.NONE)
+        if (s_logFormatter == null) {
+            s_logFormatter = new DefaultLogFormatter();
+        }
+        if (getWorkMode() != WorkMode.NONE)
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -94,9 +101,9 @@ public class MLogSettings {
                     while (true) {
                         try {
                             MessageWrapper msg = msgQueue.take();
-                            if (print_to_console) {
-                                Log.d(msg.getTag(), msg.getMsg());
-                            }
+//                            if (print_to_console) {
+//                                s_logFormatter.log();
+//                            }
                             if (write_to_file) {
                                 if (!fileName.equals(getFileNameFormat().format(new Date()
                                 ))) {
@@ -168,9 +175,22 @@ public class MLogSettings {
         return mSuffix;
     }
 
-    public MLogSettings suffix(String val) {
-        mSuffix = val;
+    public MLogSettings fileNameSuffix(String val) {
+        if (val.startsWith(".")) {
+            mSuffix = val;
+        }else {
+            mSuffix = "."+val;
+        }
         return this;
+    }
+
+    public MLogSettings logFormatter(LogFormatter formatter) {
+        s_logFormatter = formatter;
+        return this;
+    }
+
+    public static LogFormatter getLogFormatter() {
+        return s_logFormatter;
     }
 
     public MLogSettings workMode(WorkMode val) {
@@ -178,7 +198,7 @@ public class MLogSettings {
         return this;
     }
 
-    public MLogSettings logPrefix(String val) {
+    public MLogSettings fileNamePrefix(String val) {
         mLogPrefix = val;
         return this;
     }
@@ -237,5 +257,12 @@ public class MLogSettings {
                 }
             }
         }
+    }
+
+    public String formate(LogLevel v_logLevel,String v_tag, String v_method, String v_msg) {
+        if (s_logFormatter == null) {
+            s_logFormatter = new DefaultLogFormatter();
+        }
+        return s_logFormatter.formate(v_logLevel,v_tag, v_method, v_msg);
     }
 }
